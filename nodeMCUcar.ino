@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
-
-// Replace with your network credentials
+int D0 = 1, D1= 3, D2= 4,D3=5;
 const char* ssid = "your_SSID";
 const char* password = "your_PASSWORD";
 
@@ -8,50 +7,36 @@ const char* password = "your_PASSWORD";
 IPAddress server(192, 168, 0, 100);
 int port = 80;
 
-// Define the pins for the motor driver
-const int motor1Pin1 = 5;
-const int motor1Pin2 = 4;
-const int motor2Pin1 = 0;
-const int motor2Pin2 = 2;
-
 WiFiClient client;
+
+// Motor driver pins
+#define IN1 D0
+#define IN2 D1
+#define IN3 D2
+#define IN4 D3
 
 void setup() {
   Serial.begin(115200);
   
-  // Set the motor pins as output
-  pinMode(motor1Pin1, OUTPUT);
-  pinMode(motor1Pin2, OUTPUT);
-  pinMode(motor2Pin1, OUTPUT);
-  pinMode(motor2Pin2, OUTPUT);
-  
   // Connect to WiFi network
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.print(".");
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
   
-  // Debugging: print IP address
-  Serial.println(WiFi.localIP());
+  // Set motor driver pins as outputs
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
 }
 
 void loop() {
   // Check if the client is connected to the server
   if (!client.connected()) {
     // Connect to the server
-    Serial.print("Connecting to server ");
-    Serial.print(server);
-    Serial.print(":");
-    Serial.println(port);
     if (client.connect(server, port)) {
-      Serial.println("Connected to server");
     } else {
-      Serial.println("Connection failed");
     }
   }
   
@@ -60,42 +45,38 @@ void loop() {
     // Read data from the client
     String data = client.readStringUntil('\n');
     
-    // Debugging: print received data
-    Serial.println(data);
-    
     // Process received data
     if (data == "F") {
       // Move forward
-      digitalWrite(motor1Pin1, HIGH);
-      digitalWrite(motor1Pin2, LOW);
-      digitalWrite(motor2Pin1, HIGH);
-      digitalWrite(motor2Pin2, LOW);
-      delay(1000);  // Move for one second
-      // Stop
-      digitalWrite(motor1Pin1, LOW);
-      digitalWrite(motor1Pin2, LOW);
-      digitalWrite(motor2Pin1, LOW);
-      digitalWrite(motor2Pin2, LOW);
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
     } else if (data == "B") {
       // Move backward
-      digitalWrite(motor1Pin1, LOW);
-      digitalWrite(motor1Pin2, HIGH);
-      digitalWrite(motor2Pin1, LOW);
-      digitalWrite(motor2Pin2, HIGH);
-      delay(1000);  // Move for one second
-      // Stop
-      digitalWrite(motor1Pin1, LOW);
-      digitalWrite(motor1Pin2, LOW);
-      digitalWrite(motor2Pin1, LOW);
-      digitalWrite(motor2Pin2, LOW);
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
     } else if (data == "L") {
       // Turn left
-      digitalWrite(motor1Pin1, LOW);
-      digitalWrite(motor1Pin2, HIGH);
-      digitalWrite(motor2Pin1, HIGH);
-      digitalWrite(motor2Pin2, LOW);
-      delay(500);  // Turn for half a second
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+    } else if (data == "R") {
+      // Turn right
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+    } else if (data == "S") {
       // Stop
-      digitalWrite(motor1Pin1, LOW);
-      digitalWrite(motor1Pin2, LOW);
-      digitalWrite(motor2Pin1, LOW);
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, LOW);
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, LOW);
+    }
+  }
+}
+
